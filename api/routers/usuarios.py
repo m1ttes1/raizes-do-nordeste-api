@@ -7,9 +7,11 @@ e a lógica fica no service. O router só mapeia erros para códigos HTTP.
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from application.schemas.usuario_schemas import UsuarioCreate, UsuarioResponse
+from api.dependencies import get_current_user
+from application.schemas.usuario_schemas import PontosResponse, UsuarioCreate, UsuarioResponse
 from application.services.usuario_service import criar_usuario
 from infrastructure.database import get_db
+from infrastructure.orm import UsuarioORM
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
@@ -26,3 +28,20 @@ def cadastrar_usuario(dados: UsuarioCreate, db: Session = Depends(get_db)):
         return criar_usuario(db, dados)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.get(
+    "/me/pontos",
+    response_model=PontosResponse,
+    summary="Consultar saldo de pontos de fidelidade",
+)
+def consultar_pontos(usuario: UsuarioORM = Depends(get_current_user)):
+    """
+    RF06 — retorna o nome e o saldo atual de pontos de fidelidade do usuário autenticado.
+
+    O cliente acumula 1 ponto por real pago em cada pedido confirmado.
+    Aumentar o LTV (Lifetime Value) e a retenção é o objetivo desta
+    funcionalidade, conforme boas práticas de Customer Experience:
+    o extrato visível estimula novas compras e engajamento com a rede.
+    """
+    return PontosResponse.model_validate(usuario)

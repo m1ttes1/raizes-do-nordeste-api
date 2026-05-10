@@ -36,3 +36,19 @@ class UsuarioResponse(BaseModel):
 
     # from_attributes permite construir o schema a partir de um objeto ORM
     model_config = {"from_attributes": True}
+
+
+class PontosResponse(BaseModel):
+    """
+    Resposta do endpoint GET /usuarios/me/pontos (RF06).
+
+    Expõe apenas nome e saldo de pontos — dados mínimos necessários
+    para exibir o extrato de fidelidade sem vazar informações sensíveis.
+    Aumentar o LTV e a retenção é o objetivo desta funcionalidade,
+    conforme boas práticas de Customer Experience.
+    """
+
+    nome: str
+    pontos_fidelidade: int
+
+    model_config = {"from_attributes": True}

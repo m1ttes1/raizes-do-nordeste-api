@@ -149,6 +149,12 @@ def registrar_pagamento(
     # Pagamento confirmado aciona a produção: status RECEBIDO → PREPARANDO (RF03/RF04)
     pedido.status = StatusPedido.PREPARANDO.value
 
+    # RF06 — acumula pontos de fidelidade: 1 ponto por real pago.
+    # Estratégia de retenção e aumento de LTV (Lifetime Value) conforme
+    # boas práticas de Customer Experience: o crédito ocorre no momento
+    # em que a produção é confirmada, sinalizando comprometimento da rede.
+    pedido.cliente.pontos_fidelidade += int(valor_total)
+
     db.commit()
     db.refresh(pedido)
     return PedidoResponse.model_validate(pedido)

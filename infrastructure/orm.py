@@ -23,6 +23,8 @@ class UsuarioORM(Base):
     senha_hash: Mapped[str] = mapped_column(String(255))  # RNF01 — jamais texto puro
     perfil: Mapped[str] = mapped_column(String(20))
     criado_em: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    # RF06 — saldo de pontos de fidelidade: aumenta o LTV e a retenção do cliente
+    pontos_fidelidade: Mapped[int] = mapped_column(Integer, default=0)
 
     pedidos: Mapped[list["PedidoORM"]] = relationship(back_populates="cliente")
     fidelizacao: Mapped[Optional["FidelizacaoORM"]] = relationship(
