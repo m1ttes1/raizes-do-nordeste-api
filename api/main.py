@@ -6,7 +6,7 @@ pelo FastAPI a partir dos schemas Pydantic, atendendo ao RNF04.
 """
 from fastapi import FastAPI
 
-from api.routers import usuarios
+from api.routers import auth, usuarios
 
 app = FastAPI(
     title="Raízes do Nordeste API",
@@ -20,6 +20,7 @@ app = FastAPI(
     openapi_url="/openapi.json",
 )
 
+app.include_router(auth.router)
 app.include_router(usuarios.router)
 
 
