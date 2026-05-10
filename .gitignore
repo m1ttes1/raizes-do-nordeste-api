@@ -1,3 +1,28 @@
+# Ambientes Virtuais
+.venv/
+venv/
+env/
+
+# Python bits
 __pycache__/
-.env
 *.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Banco de Dados Local (SQLite)
+*.db
+*.sqlite3
+
+# Variáveis de Ambiente (Ignore o original, mantenha o .env.example)
+.env
+
+# Logs
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store

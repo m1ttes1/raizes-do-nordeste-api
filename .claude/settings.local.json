@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& \"v:\\\\Uninter\\\\Projeto 05 2026 DESENVOLVIMENTO BACKEND\\\\projeto-multidisciplinar-backend-raizes-do-nordeste\\\\.venv\\\\Scripts\\\\pip.exe\" install -r \"v:\\\\Uninter\\\\Projeto 05 2026 DESENVOLVIMENTO BACKEND\\\\projeto-multidisciplinar-backend-raizes-do-nordeste\\\\requirements.txt\")",
+      "PowerShell(& \"v:\\\\Uninter\\\\Projeto 05 2026 DESENVOLVIMENTO BACKEND\\\\projeto-multidisciplinar-backend-raizes-do-nordeste\\\\.venv\\\\Scripts\\\\python.exe\" -c \"from api.main import app; print\\('OK - app carregado:', app.title\\)\")"
+    ]
+  }
+}

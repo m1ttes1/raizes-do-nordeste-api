@@ -1,0 +1,1 @@
+Sempre siga a arquitetura em camadas (Domain, Application, Infrastructure, API) . Nunca esqueça o campo canalPedido nos modelos de pedido . Use tipos do Pydantic para validação.

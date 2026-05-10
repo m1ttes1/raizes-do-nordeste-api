@@ -1,0 +1,9 @@
+node_modules/
+__pycache__/
+.git/
+*.pdf
+*.png
+*.jpg
+.venv/
+dist/
+build/
