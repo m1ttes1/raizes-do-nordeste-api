@@ -1,4 +1,12 @@
+"""
+Ponto de entrada da aplicação FastAPI — Raízes do Nordeste.
+
+O Swagger (/docs) e o ReDoc (/redoc) são gerados automaticamente
+pelo FastAPI a partir dos schemas Pydantic, atendendo ao RNF04.
+"""
 from fastapi import FastAPI
+
+from api.routers import usuarios
 
 app = FastAPI(
     title="Raízes do Nordeste API",
@@ -11,6 +19,8 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
 )
+
+app.include_router(usuarios.router)
 
 
 @app.get("/", tags=["health"], summary="Health check")

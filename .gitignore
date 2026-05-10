@@ -1,28 +1,18 @@
-# Ambientes Virtuais
+# --- Padrões de Desenvolvimento ---
 .venv/
-venv/
-env/
-
-# Python bits
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.pytest_cache/
+.env
+.vscode/
 
-# Banco de Dados Local (SQLite)
+# --- Banco de Dados Local ---
 *.db
 *.sqlite3
 
-# Variáveis de Ambiente (Ignore o original, mantenha o .env.example)
-.env
-
-# Logs
-*.log
-
-# IDEs
-.vscode/
-.idea/
-
-# Sistema
-.DS_Store
+# --- Configurações de IDE e Ferramentas Auxiliares ---
+.claude/
+.claudeignore
+.clauderules
+CLAUDE.md
+memory/
+.gitignore-claude
