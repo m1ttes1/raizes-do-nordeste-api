@@ -33,3 +33,11 @@ class PerfilUsuario(str, Enum):
     ATENDENTE = "ATENDENTE"
     COZINHA = "COZINHA"
     CLIENTE = "CLIENTE"
+
+
+class MetodoPagamento(str, Enum):
+    """RF04 — forma de pagamento aceita pelo serviço simulado de cobrança."""
+
+    CARTAO = "CARTAO"
+    PIX = "PIX"
+    DINHEIRO = "DINHEIRO"

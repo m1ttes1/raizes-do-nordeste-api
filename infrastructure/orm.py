@@ -77,6 +77,7 @@ class PagamentoORM(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     pedido_id: Mapped[int] = mapped_column(ForeignKey("pedidos.id"), unique=True)
     valor: Mapped[float] = mapped_column(Float)
+    metodo_pagamento: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
     aprovado: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     processado_em: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
