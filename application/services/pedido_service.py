@@ -4,12 +4,17 @@ Serviço de pedidos — orquestra criação com controle de estoque, consultas e
 """
 
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from application.schemas.pedido_schemas import PagamentoCreate, PedidoCreate, PedidoResponse
-from domain.enums import PerfilUsuario, StatusPedido
+from application.schemas.pedido_schemas import (
+    AtualizarStatusRequest,
+    PagamentoCreate,
+    PedidoCreate,
+    PedidoResponse,
+)
+from domain.enums import CanalPedido, PerfilUsuario, StatusPedido
 from infrastructure.orm import ItemPedidoORM, PagamentoORM, PedidoORM, ProdutoORM
 
 _PERFIS_IRRESTRITO = {
@@ -66,18 +71,65 @@ def criar_pedido(db: Session, dados: PedidoCreate, cliente_id: int) -> PedidoRes
     return PedidoResponse.model_validate(pedido_orm)
 
 
-def listar_pedidos(db: Session, cliente_id: int, perfil: str) -> List[PedidoResponse]:
+def listar_pedidos(
+    db: Session,
+    cliente_id: int,
+    perfil: str,
+    canal_pedido: Optional[CanalPedido] = None,
+    status: Optional[StatusPedido] = None,
+) -> List[PedidoResponse]:
     """
     Retorna pedidos conforme o perfil do usuário autenticado.
 
     ADMIN, ATENDENTE e COZINHA enxergam todos os pedidos da rede.
     CLIENTE visualiza apenas o próprio histórico de compras.
+    Filtros opcionais: canal_pedido e status permitem rastrear por canal (RF02).
     """
-    if perfil in _PERFIS_IRRESTRITO:
-        pedidos = db.query(PedidoORM).all()
-    else:
-        pedidos = db.query(PedidoORM).filter(PedidoORM.cliente_id == cliente_id).all()
-    return [PedidoResponse.model_validate(p) for p in pedidos]
+    query = db.query(PedidoORM)
+    if perfil not in _PERFIS_IRRESTRITO:
+        query = query.filter(PedidoORM.cliente_id == cliente_id)
+    if canal_pedido is not None:
+        query = query.filter(PedidoORM.canal_pedido == canal_pedido.value)
+    if status is not None:
+        query = query.filter(PedidoORM.status == status.value)
+    return [PedidoResponse.model_validate(p) for p in query.all()]
+
+
+_TRANSICOES_VALIDAS: dict[str, set[str]] = {
+    StatusPedido.RECEBIDO.value: {StatusPedido.CANCELADO.value},
+    StatusPedido.PREPARANDO.value: {StatusPedido.PRONTO.value, StatusPedido.CANCELADO.value},
+    StatusPedido.PRONTO.value: {StatusPedido.ENTREGUE.value, StatusPedido.CANCELADO.value},
+    StatusPedido.ENTREGUE.value: set(),
+    StatusPedido.CANCELADO.value: set(),
+}
+
+_PERFIS_STATUS = {PerfilUsuario.ADMIN.value, PerfilUsuario.ATENDENTE.value, PerfilUsuario.COZINHA.value}
+
+
+def atualizar_status(
+    db: Session,
+    pedido_id: int,
+    dados: AtualizarStatusRequest,
+    usuario_id: int,
+    perfil: str,
+) -> PedidoResponse:
+    """RF03 — Atualiza status seguindo o fluxo cozinha/atendente."""
+    if perfil not in _PERFIS_STATUS:
+        raise ValueError("Acesso negado: apenas ADMIN, ATENDENTE ou COZINHA podem atualizar status.")
+    pedido = db.query(PedidoORM).filter(PedidoORM.id == pedido_id).first()
+    if pedido is None:
+        raise ValueError("Pedido não encontrado.")
+    novo_status = dados.status.value
+    permitidos = _TRANSICOES_VALIDAS.get(pedido.status, set())
+    if novo_status not in permitidos:
+        raise ValueError(
+            f"Transição inválida: {pedido.status} → {novo_status}. "
+            f"Permitido: {permitidos or 'nenhum (estado final)'}."
+        )
+    pedido.status = novo_status
+    db.commit()
+    db.refresh(pedido)
+    return PedidoResponse.model_validate(pedido)
 
 
 def buscar_pedido(

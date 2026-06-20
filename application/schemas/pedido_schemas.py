@@ -66,6 +66,12 @@ class PedidoResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class AtualizarStatusRequest(BaseModel):
+    """Dados para atualização manual de status do pedido (RF03 — fluxo da cozinha)."""
+
+    status: StatusPedido
+
+
 class PagamentoCreate(BaseModel):
     """
     Dados enviados para registrar o pagamento de um pedido (RF04).

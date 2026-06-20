@@ -24,6 +24,7 @@ class StatusPedido(str, Enum):
     PREPARANDO = "PREPARANDO"
     PRONTO = "PRONTO"
     ENTREGUE = "ENTREGUE"
+    CANCELADO = "CANCELADO"
 
 
 class PerfilUsuario(str, Enum):

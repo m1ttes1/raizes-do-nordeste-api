@@ -5,19 +5,26 @@ Multicanalidade (RF02): o campo canal_pedido é exigido em toda abertura de pedi
 identificando se a demanda veio do APP, TOTEM, BALCAO, PICKUP ou WEB.
 """
 
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from api.dependencies import get_current_user
-from application.schemas.pedido_schemas import PagamentoCreate, PedidoCreate, PedidoResponse
+from application.schemas.pedido_schemas import (
+    AtualizarStatusRequest,
+    PagamentoCreate,
+    PedidoCreate,
+    PedidoResponse,
+)
 from application.services.pedido_service import (
+    atualizar_status,
     buscar_pedido,
     criar_pedido,
     listar_pedidos,
     registrar_pagamento,
 )
+from domain.enums import CanalPedido, StatusPedido
 from infrastructure.database import get_db
 from infrastructure.orm import UsuarioORM
 
@@ -44,16 +51,32 @@ def abrir_pedido(
 
 @router.get("/", response_model=List[PedidoResponse])
 def listar(
+    canal_pedido: Optional[CanalPedido] = Query(None, description="Filtra por canal de origem (RF02)."),
+    status: Optional[StatusPedido] = Query(None, description="Filtra por status do pedido."),
     db: Session = Depends(get_db),
     usuario: UsuarioORM = Depends(get_current_user),
 ):
-    """
-    RF03 — Lista pedidos conforme o perfil do usuário autenticado.
+    """RF02/RF03 — Lista pedidos com filtros opcionais por canal e status."""
+    return listar_pedidos(
+        db, cliente_id=usuario.id, perfil=usuario.perfil,
+        canal_pedido=canal_pedido, status=status,
+    )
 
-    ADMIN / ATENDENTE / COZINHA visualizam todos os pedidos da rede.
-    CLIENTE visualiza apenas o próprio histórico de compras.
-    """
-    return listar_pedidos(db, cliente_id=usuario.id, perfil=usuario.perfil)
+
+@router.patch("/{pedido_id}/status", response_model=PedidoResponse)
+def atualizar(
+    pedido_id: int,
+    dados: AtualizarStatusRequest,
+    db: Session = Depends(get_db),
+    usuario: UsuarioORM = Depends(get_current_user),
+):
+    """RF03 — Atualiza status do pedido (fluxo cozinha/atendente). ADMIN/ATENDENTE/COZINHA."""
+    try:
+        return atualizar_status(db, pedido_id, dados, usuario_id=usuario.id, perfil=usuario.perfil)
+    except ValueError as exc:
+        codigos = {"não encontrado": 404, "Acesso negado": 403, "Transição inválida": 409}
+        codigo = next((v for k, v in codigos.items() if k in str(exc)), 422)
+        raise HTTPException(status_code=codigo, detail=str(exc))
 
 
 @router.get("/{pedido_id}", response_model=PedidoResponse)
