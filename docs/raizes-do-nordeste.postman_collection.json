@@ -15,7 +15,7 @@
       "name": "Auth",
       "item": [
         {
-          "name": "T01 — Login válido (cliente)",
+          "name": "T01 — Login válido (admin)",
           "event": [
             {
               "listen": "test",
@@ -34,19 +34,16 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                { "key": "username", "value": "maria@raizes.com.br" },
-                { "key": "password", "value": "Nordeste@2026" }
-              ]
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@raizes.com\",\n  \"senha\": \"admin123\"\n}"
             },
             "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
           }
         },
         {
-          "name": "T02 — Login válido (admin)",
+          "name": "T02 — Login válido (cliente)",
           "event": [
             {
               "listen": "test",
@@ -62,13 +59,10 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                { "key": "username", "value": "admin@raizes.com.br" },
-                { "key": "password", "value": "Admin@2026" }
-              ]
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"cliente@raizes.com\",\n  \"senha\": \"cliente123\"\n}"
             },
             "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
           }
@@ -92,13 +86,10 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                { "key": "username", "value": "naoexiste@raizes.com.br" },
-                { "key": "password", "value": "senhaerrada" }
-              ]
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"naoexiste@raizes.com\",\n  \"senha\": \"senhaerrada123\"\n}"
             },
             "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
           }
